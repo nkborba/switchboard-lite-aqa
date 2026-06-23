@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Switchboard Admin</title>
+</head>
+<body>
+  <h1>Menu Admin</h1>
+
+  <button id="publish-lunch">Publish Lunch Menu</button>
+  <button id="publish-dinner">Publish Dinner Menu</button>
+
+  <p id="status" role="status"></p>
+
+  <script>
+    const menus = {
+      lunch: {
+        name: 'Lunch Menu',
+        items: [
+          { name: 'Cheeseburger', price: 9.99 },
+          { name: 'Fries', price: 3.99 },
+        ],
+      },
+      dinner: {
+        name: 'Dinner Menu',
+        items: [
+          { name: 'Steak', price: 19.99 },
+          { name: 'Salad', price: 6.5 },
+        ],
+      },
+    };
+
+    async function publish(menu) {
+      const status = document.getElementById('status');
+      status.textContent = 'Publishing...';
+      try {
+        const res = await fetch('/api/publish', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(menu),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          status.textContent = `Published ${data.name} (v${data.version})`;
+        } else {
+          status.textContent = `Error: ${data.error}`;
+        }
+      } catch (err) {
+        status.textContent = `Request failed: ${err.message}`;
+      }
+    }
+
+    document.getElementById('publish-lunch')
+      .addEventListener('click', () => publish(menus.lunch));
+    document.getElementById('publish-dinner')
+      .addEventListener('click', () => publish(menus.dinner));
+  </script>
+</body>
+</html>

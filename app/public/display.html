@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Store Display</title>
+</head>
+<body>
+  <h1>Store Display</h1>
+
+  <button id="load-menu">Load Menu</button>
+
+  <div id="menu"></div>
+
+  <script>
+    async function loadMenu() {
+      const container = document.getElementById('menu');
+      container.innerHTML = 'Loading...';
+      try {
+        const res = await fetch('/api/store-display');
+        if (!res.ok) {
+          container.innerHTML = '<p>No menu published yet</p>';
+          return;
+        }
+        const menu = await res.json();
+        const itemsHtml = menu.items
+          .map((item) => `<li>${item.name} - $${item.price.toFixed(2)}</li>`)
+          .join('');
+        container.innerHTML = `
+          <h2>${menu.name}</h2>
+          <ul>${itemsHtml}</ul>
+        `;
+      } catch (err) {
+        container.innerHTML = `<p>Failed to load: ${err.message}</p>`;
+      }
+    }
+
+    document.getElementById('load-menu').addEventListener('click', loadMenu);
+  </script>
+</body>
+</html>
